@@ -1,0 +1,147 @@
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Distributori — Caro Carburanti Italia</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<style>
+:root{--navy:#0c2945;--red:#d71920;--green:#138a4b;--yellow:#f2ad00;--bg:#f4f7fa;--muted:#66788a;--line:#dbe4ec}*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;color:#10243a;background:var(--bg)}a{text-decoration:none;color:inherit}.top{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1000}.nav{max-width:1180px;margin:auto;height:76px;display:flex;align-items:center;padding:8px 20px;gap:14px}.logo{width:58px;height:58px;object-fit:contain}.brand{font-weight:900;line-height:.95;font-size:19px;color:var(--navy)}.brand b{display:block;color:var(--red)}.menu{margin-left:auto;display:flex;gap:20px;font-weight:800;font-size:14px}.menu a:hover{color:var(--red)}.btn{border:0;border-radius:11px;padding:12px 17px;font-weight:800;cursor:pointer}.primary{background:var(--navy);color:#fff}.red{background:var(--red);color:#fff}.container{max-width:1180px;margin:auto;padding:28px 20px}.page-head h1{font-size:38px;margin:12px 0 8px;color:var(--navy)}.muted{color:var(--muted)}.card{background:#fff;border-radius:17px;padding:20px;box-shadow:0 7px 25px rgba(12,41,69,.07)}.searchbox{display:grid;grid-template-columns:1fr 1fr 1fr 1.5fr auto auto;gap:10px;align-items:center}.searchbox select,.searchbox input,.toolbar select{padding:12px;border:1px solid #cbd6df;border-radius:10px;background:#fff;font-size:15px;min-width:0}.searchbox select:disabled{background:#eef2f5;color:#7d8b98}.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}.chip{border:1px solid #cbd6df;background:#fff;border-radius:99px;padding:9px 14px;font-weight:800;cursor:pointer}.chip.active{background:var(--navy);color:#fff}.notice{background:#fff7d8;border:1px solid #ead89a;color:#66500a;border-radius:12px;padding:12px 15px;font-size:13px;font-weight:700}.mapgrid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(330px,.9fr);gap:18px}.mapwrap{position:relative}.leafletmap{height:620px;border-radius:17px;border:1px solid #cbd6df;overflow:hidden}.maphint{position:absolute;z-index:500;left:12px;bottom:12px;background:#fff;padding:8px 11px;border-radius:9px;box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:12px;font-weight:700}.list{height:620px;overflow:auto}.station{padding:16px;border:1px solid var(--line);border-radius:14px;margin:0 0 10px;background:#fff}.station b{font-size:17px}.station small{color:var(--muted)}.tag{display:inline-block;border-radius:99px;padding:5px 8px;font-size:11px;font-weight:900}.official{background:#e8f5ed;color:var(--green)}.snapshot{background:#fff3cd;color:#664d03}.pricegrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}.price{border:1px solid var(--line);border-radius:11px;padding:9px}.price strong{font-size:18px;color:var(--green)}.empty{padding:25px;text-align:center}.footer{margin-top:40px;background:var(--navy);color:#fff}.foot{max-width:1180px;margin:auto;padding:30px 20px}.small{font-size:12px;color:#b7c6d3}.source{margin-top:12px;font-size:12px;color:var(--muted)}.source a{text-decoration:underline}.coords{font-size:12px;color:#66788a;margin-top:5px}@media(max-width:1000px){.searchbox{grid-template-columns:1fr 1fr 1fr}.mapgrid{grid-template-columns:1fr}.list{height:auto}}@media(max-width:600px){.searchbox{grid-template-columns:1fr}.menu{display:none}.page-head h1{font-size:30px}.leafletmap{height:480px}}
+</style></head><body>
+<header class="top"><nav class="nav"><a href="index.html"><img class="logo" src="logo.png" alt="Caro Carburanti Italia"></a><a href="index.html"><div class="brand">CARO <b>CARBURANTI</b> ITALIA</div></a><div class="menu"><a href="index.html">Home</a><a href="distributori.html" style="color:var(--red)">Distributori</a><a href="segnalazioni.html">Segnalazioni</a><a href="proposte.html">Proposte</a><a href="dati.html">Dati</a><a href="chi-siamo.html">Chi siamo</a></div><a class="btn primary" href="account.html">Registrati</a></nav></header>
+<main class="container"><div class="page-head"><h1>📍 Trova un distributore</h1><p class="muted">Cerca per indirizzo, usa la tua posizione oppure seleziona regione, provincia e comune. La mappa è interattiva.</p></div>
+<div class="card"><div class="searchbox"><select id="region"><option value="">Regione</option></select><select id="province" disabled><option value="">Provincia</option></select><select id="city" disabled><option value="">Comune</option></select><input id="address" placeholder="Es. Via Massimi 91, Roma"><button class="btn primary" id="locate">📍 Posizione</button><button class="btn red" id="search">🔎 Cerca</button></div><div id="status" class="source">Pronto. Seleziona una località o cerca un indirizzo.</div></div>
+<div class="toolbar"><select id="fuel"><option value="all">Tutti i carburanti</option><option value="benzina">Benzina</option><option value="diesel">Diesel</option><option value="gpl">GPL</option><option value="metano">Metano</option></select><select id="radius"><option value="5">Entro 5 km</option><option value="1">Entro 1 km</option><option value="10">Entro 10 km</option><option value="20">Entro 20 km</option></select><select id="sort"><option value="distance">Più vicini</option><option value="price">Prezzo medio più basso</option></select></div>
+<div class="chips"><button class="chip active" data-fuel="all">Tutti</button><button class="chip" data-fuel="benzina">Benzina</button><button class="chip" data-fuel="diesel">Diesel</button><button class="chip" data-fuel="gpl">GPL</button><button class="chip" data-fuel="metano">Metano</button></div>
+<div id="chosen" class="notice" style="display:none;margin-bottom:15px"></div>
+<div class="mapgrid"><div class="mapwrap"><div id="map" class="leafletmap"></div><div class="maphint">Trascina · zoom · clicca i marker</div></div><div class="list" id="list"><div class="card empty"><h3>Inserisci una località</h3><p class="muted">I risultati compariranno qui.</p></div></div></div>
+<div class="notice" style="margin-top:15px"><b>Trasparenza sui dati:</b> i prezzi mostrati nelle schede sono quelli comunicati dai singoli impianti al MIMIT. Non sostituiamo il prezzo della singola pompa con una media regionale.</div>
+<div class="source">Fonte prezzi: <a href="https://www.mimit.gov.it/it/open-data/elenco-dataset/carburanti-prezzi-praticati-e-anagrafica-degli-impianti" target="_blank" rel="noopener">MIMIT / Osservaprezzi Carburanti</a>. I prezzi sono quelli comunicati dai gestori; la scheda mostra il prezzo del singolo impianto e la data disponibile.</div>
+</main><footer class="footer"><div class="foot"><b>CARO CARBURANTI ITALIA</b><p class="small">Informazione, confronto e partecipazione sul costo dei carburanti.</p></div></footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>
+const MIMIT='https://carburanti.mise.gov.it/OssPrezziSearch';
+const MIMIT_POSITION=MIMIT+'/ricerca/position';
+const MIMIT_PROVINCE=MIMIT+'/ricerca/province';
+const MIMIT_COMUNI=MIMIT+'/ricerca/comuni';
+const REGIONI=[
+  [2,'Abruzzo'],[3,'Basilicata'],[7,'Calabria'],[8,'Campania'],[14,'Emilia-Romagna'],[15,'Friuli-Venezia Giulia'],[9,'Lazio'],[18,'Liguria'],[19,'Lombardia'],[1,'Marche'],[4,'Molise'],[13,'Piemonte'],[6,'Puglia'],[10,'Sardegna'],[11,'Sicilia'],[12,'Toscana'],[5,'Trentino-Alto Adige'],[20,'Umbria'],[16,"Valle d’Aosta"],[17,'Veneto']
+];
+const regionById=new Map(REGIONI.map(([id,name])=>[String(id),name]));
+const regionByName=new Map(REGIONI.map(([id,name])=>[name.toLowerCase(),String(id)]));
+let territorial={regionId:'',regionName:'',provinceId:'',provinceName:'',townName:''};
+let map=L.map('map',{zoomControl:true,preferCanvas:true}).setView([41.9028,12.4964],10);
+const carto=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:20,subdomains:'abcd',attribution:'© OpenStreetMap contributors © CARTO'}).addTo(map);
+const esri=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'© Esri, HERE, Garmin, USGS, NGA, EPA, USDA, NPS'});
+let mapFallback=false;
+carto.on('tileerror',()=>{if(!mapFallback){mapFallback=true;map.removeLayer(carto);esri.addTo(map);}});
+let markers=[], searchMarker=null;
+const regionEl=document.getElementById('region'),provEl=document.getElementById('province'),cityEl=document.getElementById('city'),addrEl=document.getElementById('address'),statusEl=document.getElementById('status'),listEl=document.getElementById('list'),chosenEl=document.getElementById('chosen');
+const state={center:null,stations:[]};
+function setOptions(el,items,placeholder){el.innerHTML='';el.add(new Option(placeholder,''));items.forEach(([value,label])=>el.add(new Option(label,value)));}
+function formData(obj){const f=new URLSearchParams();Object.entries(obj).forEach(([k,v])=>{if(v!==undefined&&v!==null&&v!=='')f.set(k,v)});return f;}
+async function mimitPost(path,obj){const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8','Accept':'application/json'},body:formData(obj)});if(!r.ok)throw new Error('MIMIT HTTP '+r.status);return await r.json();}
+function objectEntries(obj){return obj&&typeof obj==='object'&&!Array.isArray(obj)?Object.entries(obj):[];}
+function fuelCode(f){return f==='benzina'?'1-x':f==='diesel'?'2-x':f==='metano'?'3-x':f==='gpl'?'4-x':'';}
+function fuelLabel(f){return f==='diesel'?'Diesel':f==='gpl'?'GPL':f==='metano'?'Metano':'Benzina';}
+function normFuel(v){const t=String(v||'').toLowerCase();if(t.includes('gasolio')||t.includes('diesel'))return'diesel';if(t.includes('gpl'))return'gpl';if(t.includes('metano')||t.includes('cng'))return'metano';if(t.includes('benzina'))return'benzina';return null;}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function parsePrice(v){const n=Number(String(v??'').replace(',','.'));return Number.isFinite(n)?n:null;}
+function parseStation(x){
+  const lat=Number(x.lat),lng=Number(x.lon);if(!Number.isFinite(lat)||!Number.isFinite(lng))return null;
+  const prices={benzina:null,diesel:null,gpl:null,metano:null},served={benzina:null,diesel:null,gpl:null,metano:null},dates={benzina:'',diesel:'',gpl:'',metano:''};
+  for(const c of (x.carburanti||[])){
+    const f=normFuel(c.carb),p=parsePrice(c.prezzo);if(!f||p==null)continue;
+    if(Number(c.isSelf)===1){prices[f]=p;dates[f]=x.dIns||'';}else if(served[f]==null){served[f]=p;}
+  }
+  for(const f of Object.keys(prices))if(prices[f]==null&&served[f]!=null)prices[f]=served[f];
+  return {id:String(x.id??x.name??x.addr),name:x.bnd||x.name||'Distributore',addr:x.addr||'',lat,lng,prices,dates,source:'MIMIT'};
+}
+function hav(a,b,c,d){const R=6371,p=Math.PI/180,la=(c-a)*p,lo=(d-b)*p,x=Math.sin(la/2)**2+Math.cos(a*p)*Math.cos(c*p)*Math.sin(lo/2)**2;return 2*R*Math.asin(Math.sqrt(x));}
+function clearMarkers(){markers.forEach(m=>map.removeLayer(m));markers=[];}
+function setSearchMarker(pos,label){if(searchMarker)map.removeLayer(searchMarker);searchMarker=L.circleMarker([pos.lat,pos.lng],{radius:9,color:'#d71920',weight:4,fillColor:'#fff',fillOpacity:1}).addTo(map).bindPopup('<b>Posizione cercata</b><br>'+esc(label)).openPopup();map.flyTo([pos.lat,pos.lng],15,{duration:.7});}
+function showChosen(){const a=[territorial.regionName,territorial.provinceName,territorial.townName].filter(Boolean);chosenEl.style.display=a.length?'block':'none';chosenEl.textContent=a.length?'📍 '+a.join(' › '):'';}
+async function loadRegions(){setOptions(regionEl,REGIONI.map(([id,name])=>[String(id),name]),'Regione');provEl.innerHTML='<option value="">Provincia</option>';cityEl.innerHTML='<option value="">Comune</option>';provEl.disabled=true;cityEl.disabled=true;}
+async function loadProvinces(){
+  statusEl.textContent='Carico le province…';provEl.disabled=true;cityEl.disabled=true;cityEl.innerHTML='<option value="">Comune</option>';
+  const d=await mimitPost(MIMIT_PROVINCE,{regioneId:territorial.regionId});
+  const items=objectEntries(d).sort((a,b)=>a[1].localeCompare(b[1],'it')).map(([sigla,nome])=>[sigla,nome]);
+  setOptions(provEl,items,'Provincia');provEl.disabled=items.length===0;statusEl.textContent=items.length?'Seleziona una provincia.':'Nessuna provincia disponibile.';
+}
+async function loadCities(){
+  statusEl.textContent='Carico i comuni…';cityEl.disabled=true;
+  const d=await mimitPost(MIMIT_COMUNI,{provinciaId:territorial.provinceId});
+  const items=objectEntries(d).sort((a,b)=>a[1].localeCompare(b[1],'it')).map(([name,value])=>[value||name,name]);
+  setOptions(cityEl,items,'Comune');cityEl.disabled=items.length===0;statusEl.textContent=items.length?'Seleziona un comune oppure premi Cerca.':'Nessun comune disponibile.';
+}
+regionEl.onchange=async()=>{territorial.regionId=regionEl.value;territorial.regionName=regionById.get(regionEl.value)||'';territorial.provinceId='';territorial.provinceName='';territorial.townName='';showChosen();if(!territorial.regionId)return;try{await loadProvinces()}catch(e){statusEl.textContent='Non riesco a caricare le province dal servizio MIMIT.';console.error(e)}};
+provEl.onchange=async()=>{territorial.provinceId=provEl.value;territorial.provinceName=provEl.options[provEl.selectedIndex]?.text||'';territorial.townName='';showChosen();if(!territorial.provinceId)return;try{await loadCities()}catch(e){statusEl.textContent='Non riesco a caricare i comuni dal servizio MIMIT.';console.error(e)}};
+cityEl.onchange=()=>{territorial.townName=cityEl.options[cityEl.selectedIndex]?.text||'';showChosen();};
+function activeFuel(){return document.getElementById('fuel').value;}
+async function queryLocalita(regionId,provinceId,town,fuel){const raw=await mimitPost(MIMIT+'/ricerca/localita',{region:regionId,province:provinceId,town,carb:fuelCode(fuel),ordPrice:'asc'});const arr=Array.isArray(raw)?raw:(raw.array||raw.results||[]);return arr.map(parseStation).filter(Boolean);}
+async function queryPosition(center,fuel){const raw=await mimitPost(MIMIT_POSITION,{pointsListStr:`${center.lat}-${center.lng}#`,carb:fuelCode(fuel),ordPrice:'asc'});const arr=Array.isArray(raw)?raw:(raw.array||raw.results||[]);return arr.map(parseStation).filter(Boolean);}
+async function geocode(q){
+  const photon='https://photon.komoot.io/api/?limit=1&lang=it&q='+encodeURIComponent(q);
+  try{const r=await fetch(photon,{headers:{Accept:'application/json'}});if(r.ok){const d=await r.json(),f=d.features?.[0];if(f)return {lat:+f.geometry.coordinates[1],lng:+f.geometry.coordinates[0],label:f.properties?.name? [f.properties.name,f.properties.city||f.properties.town,f.properties.state].filter(Boolean).join(', '):q,props:f.properties||{}};}}catch(e){console.warn('Photon',e)}
+  const nom='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=it&accept-language=it&q='+encodeURIComponent(q);
+  const r=await fetch(nom,{headers:{Accept:'application/json'}});if(!r.ok)throw new Error('geocoding');const d=await r.json();if(!d[0])throw new Error('Indirizzo non trovato');const a=d[0].address||{};return {lat:+d[0].lat,lng:+d[0].lon,label:d[0].display_name,props:{city:a.city,town:a.town,village:a.village,state:a.state,county:a.county}};
+}
+function normalize(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ' ).trim();}
+async function inferTerritory(props,q){
+  const qn=normalize(q+' '+JSON.stringify(props));
+  let regionId=REGIONI.find(([id,name])=>qn.includes(normalize(name)))?.[0]||'';
+  if(!regionId){for(const [id,name] of REGIONI){if(qn.includes(normalize(name.split('-')[0]))){regionId=id;break;}}}
+  if(!regionId)return null;
+  const provinces=objectEntries(await mimitPost(MIMIT_PROVINCE,{regioneId:regionId}));
+  let province=provinces.find(([sigla,nome])=>qn.includes(normalize(nome)));
+  if(!province){const county=normalize(props.county||'');province=provinces.find(([sigla,nome])=>county.includes(normalize(nome))||normalize(nome).includes(county));}
+  if(!province)return {regionId:String(regionId),regionName:regionById.get(String(regionId))};
+  const cities=objectEntries(await mimitPost(MIMIT_COMUNI,{provinciaId:province[0]}));
+  const cityCandidate=normalize(props.city||props.town||props.village||'');
+  let city=cities.find(([name])=>normalize(name)===cityCandidate)||cities.find(([name])=>qn.includes(normalize(name)));
+  return {regionId:String(regionId),regionName:regionById.get(String(regionId)),provinceId:province[0],provinceName:province[1],townName:city?city[0]:''};
+}
+async function syncTerritoryUI(){
+  if(territorial.regionId){regionEl.value=territorial.regionId;await loadProvinces();}
+  if(territorial.provinceId){provEl.value=territorial.provinceId;await loadCities();}
+  if(territorial.townName){cityEl.value=territorial.townName;}
+  showChosen();
+}
+async function search(){
+  const q=addrEl.value.trim();statusEl.textContent='Ricerca in corso…';listEl.innerHTML='<div class="card empty"><h3>Sto cercando…</h3><p class="muted">Recupero posizione e prezzi reali MIMIT.</p></div>';
+  try{
+    let center=null,label='';let localResults=[];
+    if(q){
+      const g=await geocode(q);center={lat:g.lat,lng:g.lng};label=g.label||q;
+      try{const inf=await inferTerritory(g.props,q);if(inf){territorial={...territorial,...inf};await syncTerritoryUI();if(inf.provinceId&&inf.townName)localResults=await queryLocalita(inf.regionId,inf.provinceId,inf.townName,activeFuel());}}catch(e){console.warn('Territorio indirizzo',e)}
+    } else if(territorial.townName&&territorial.provinceId){
+      localResults=await queryLocalita(territorial.regionId,territorial.provinceId,territorial.townName,activeFuel());
+      try{const g=await geocode(territorial.townName+', '+territorial.provinceName+', Italia');center={lat:g.lat,lng:g.lng};label=territorial.townName+', '+territorial.provinceName;}catch(_){const first=localResults.find(x=>Number.isFinite(x.lat)&&Number.isFinite(x.lng));if(first){center={lat:first.lat,lng:first.lng};label=territorial.townName+', '+territorial.provinceName;}}
+      if(!center)throw new Error('Nessun impianto trovato nel comune selezionato.');
+    } else if(territorial.provinceId){
+      throw new Error('Seleziona anche il comune.');
+    } else if(territorial.regionId){
+      throw new Error('Seleziona provincia e comune oppure inserisci un indirizzo.');
+    } else throw new Error('Inserisci un indirizzo o seleziona regione, provincia e comune.');
+    state.center=center;setSearchMarker(center,label);
+    let arr=localResults;
+    if(!arr.length)arr=await queryPosition(center,activeFuel());
+    renderStations(arr,center);addrEl.value=q||label;
+  }catch(e){console.error(e);statusEl.textContent=e.message||'Ricerca non riuscita.';listEl.innerHTML='<div class="card empty"><h3>Ricerca non riuscita</h3><p class="muted">'+esc(e.message||'Controlla i dati inseriti e riprova.')+'</p></div>';}
+}
+function renderStations(arr,center){
+  clearMarkers();const active=activeFuel(),radius=Number(document.getElementById('radius').value),sort=document.getElementById('sort').value;
+  const byId=new Map();
+  for(const s of arr){s.dist=hav(center.lat,center.lng,s.lat,s.lng);if(s.dist>radius)continue;let cur=byId.get(s.id);if(!cur){cur={...s,prices:{...s.prices},dates:{...s.dates},dist:s.dist};byId.set(s.id,cur);}else{for(const f of ['benzina','diesel','gpl','metano']){if(cur.prices[f]==null&&s.prices[f]!=null){cur.prices[f]=s.prices[f];cur.dates[f]=s.dates[f];}}}}
+  arr=[...byId.values()];if(sort==='distance')arr.sort((a,b)=>a.dist-b.dist);else if(active!=='all')arr.sort((a,b)=>(a.prices[active]??99)-(b.prices[active]??99));
+  if(!arr.length){listEl.innerHTML='<div class="card empty"><h3>Nessun distributore trovato</h3><p class="muted">Prova ad aumentare il raggio o cerca un indirizzo vicino.</p></div>';statusEl.textContent='Nessun impianto trovato nel raggio selezionato.';return;}
+  listEl.innerHTML='';const bounds=[];if(searchMarker)bounds.push(searchMarker.getLatLng());
+  arr.forEach(s=>{bounds.push([s.lat,s.lng]);const fuels=active==='all'?['benzina','diesel','gpl','metano']:[active];const boxes=fuels.filter(f=>s.prices[f]!=null).map(f=>'<div class="price"><small>'+fuelLabel(f)+' self</small><br><strong>€ '+s.prices[f].toFixed(3)+'/L</strong><br><span class="small">'+esc(s.dates[f]||'')+'</span></div>').join('');const el=document.createElement('div');el.className='station';el.innerHTML='<div><span class="tag official">DATI MIMIT</span> <span class="small">'+s.dist.toFixed(1)+' km</span></div><b>'+esc(s.name)+'</b><br><small>'+esc(s.addr)+'</small><div class="pricegrid">'+(boxes||'<div class="price"><small>Prezzo</small><br><strong>n/d</strong></div>')+'</div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn primary">Mostra sulla mappa</button></div>';el.querySelector('button').onclick=()=>{map.flyTo([s.lat,s.lng],17,{duration:.6});const m=markers.find(m=>m._station===s);if(m)m.openPopup();};listEl.appendChild(el);const popup=fuels.filter(f=>s.prices[f]!=null).map(f=>'<b>'+fuelLabel(f)+' self:</b> € '+s.prices[f].toFixed(3)+'/L').join('<br>');const m=L.circleMarker([s.lat,s.lng],{radius:7,color:'#0c78c9',weight:3,fillColor:'#fff',fillOpacity:1}).addTo(map).bindPopup('<b>'+esc(s.name)+'</b><br>'+esc(s.addr)+'<br><br>'+popup+'<br><small>Fonte: MIMIT · '+esc(s.dates[active]||s.dates.benzina||'data non disponibile')+'</small>');m._station=s;markers.push(m);});
+  statusEl.innerHTML='<span class="tag official">MIMIT</span> '+arr.length+' distributori trovati entro '+radius+' km.';
+  if(bounds.length>1)map.fitBounds(bounds,{padding:[35,35],maxZoom:15});
+  state.stations=arr;
+}
+async function refreshResults(){if(!state.center)return;try{const arr=await queryPosition(state.center,activeFuel());renderStations(arr,state.center);}catch(e){statusEl.textContent='Servizio MIMIT temporaneamente non raggiungibile.';}}
+document.getElementById('search').onclick=search;addrEl.onkeydown=e=>{if(e.key==='Enter')search();};
+document.getElementById('locate').onclick=()=>{if(!navigator.geolocation){alert('Geolocalizzazione non supportata.');return;}navigator.geolocation.getCurrentPosition(async p=>{addrEl.value='La mia posizione';state.center={lat:p.coords.latitude,lng:p.coords.longitude};setSearchMarker(state.center,'La tua posizione');statusEl.textContent='Cerco i distributori più vicini…';try{renderStations(await queryPosition(state.center,activeFuel()),state.center);}catch(e){statusEl.textContent='Servizio MIMIT temporaneamente non raggiungibile.';}},()=>alert('Permesso posizione negato o non disponibile.'))};
+document.querySelectorAll('.chip').forEach(c=>c.onclick=async()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');document.getElementById('fuel').value=c.dataset.fuel;if(state.center)await refreshResults();});
+document.getElementById('fuel').onchange=refreshResults;
+document.getElementById('radius').onchange=()=>{if(state.center)refreshResults();};
+document.getElementById('sort').onchange=()=>{if(state.center)renderStations(state.stations,state.center);};
+loadRegions();
+
+</script></body></html>
