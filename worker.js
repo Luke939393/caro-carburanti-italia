@@ -1,43 +1,90 @@
+const MIMIT_BASE = "https://carburanti.mise.gov.it/OssPrezziSearch";
+
 export default {
   async fetch(request) {
     const url = new URL(request.url);
 
-    const target =
-      "https://carburanti.mise.gov.it/ospzApi/benzina/ricerca/position";
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: corsHeaders()
+      });
+    }
 
-    const params = new URLSearchParams(url.search);
+    const path = url.pathname;
 
-    const lat = params.get("lat");
-    const lon = params.get("lon");
-    const radius = params.get("radius") || "10";
+    const allowed = [
+      "/ricerca/province",
+      "/ricerca/comuni",
+      "/ricerca/localita",
+      "/ricerca/position"
+    ];
 
-    if (!lat || !lon) {
-      return new Response(
-        JSON.stringify({
-          error: "Mancano latitudine e longitudine"
-        }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*"
-          }
-        }
+    if (!allowed.includes(path)) {
+      return json(
+        { error: "Endpoint non disponibile" },
+        404
       );
     }
 
-    const response = await fetch(
-      `${target}?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&radius=${encodeURIComponent(radius)}`
-    );
+    try {
+      const body = await request.text();
 
-    const body = await response.text();
+      const response = await fetch(
+        MIMIT_BASE + path,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              request.headers.get("Content-Type") ||
+              "application/x-www-form-urlencoded;charset=UTF-8",
+            "Accept": "application/json"
+          },
+          body
+        }
+      );
 
-    return new Response(body, {
-      status: response.status,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
-      }
-    });
+      const text = await response.text();
+
+      return new Response(text, {
+        status: response.status,
+        headers: {
+          ...corsHeaders(),
+          "Content-Type":
+            response.headers.get("Content-Type") ||
+            "application/json"
+        }
+      });
+
+    } catch (error) {
+      return json(
+        {
+          error: "Errore nel collegamento al MIMIT",
+          details: String(error)
+        },
+        502
+      );
+    }
   }
 };
+
+function corsHeaders() {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type"
+  };
+}
+
+function json(data, status = 200) {
+  return new Response(
+    JSON.stringify(data),
+    {
+      status,
+      headers: {
+        ...corsHeaders(),
+        "Content-Type": "application/json"
+      }
+    }
+  );
+}
